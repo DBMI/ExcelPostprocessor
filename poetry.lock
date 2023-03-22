@@ -4,7 +4,7 @@
 name = "alabaster"
 version = "0.7.13"
 description = "A configurable sidebar-enabled Sphinx theme"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -79,7 +79,7 @@ tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 name = "babel"
 version = "2.12.1"
 description = "Internationalization utilities"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1271,7 +1271,7 @@ semver = "*"
 name = "pytz"
 version = "2022.7.1"
 description = "World timezone definitions, modern and historical"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -1853,4 +1853,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4.0"
-content-hash = "2e2157ac3d9dbc1efe5572f95adccc02c99f4f02793b06d725477baf7a1f5aa3"
+content-hash = "0cc05f3cdc0cfaeac5b0a11c4f897261711d5e26dab7752cf4ba6ede16f7384c"
