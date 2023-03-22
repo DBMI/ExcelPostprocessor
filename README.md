@@ -1,4 +1,4 @@
-# Excel Postprocessor ![image info](./pictures/logo.png) 
+# Excel Postprocessor ![image info](./pictures/excel_processor.png) 
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![Coverage Status](./.github/badges/coverage-badge.svg?dummy=8484744)
@@ -12,7 +12,7 @@
 
 ---
 
-Python tools to search Excel fields and extract measurements.
+Python tools to search Excel columns and extract measurements.
 
 ## Installation
 
