@@ -1,0 +1,75 @@
+import os
+import sys
+from excel_postprocessor.excel_postprocessor import ExcelParser
+
+
+def main() -> None:
+    #   Parse target filename from command-line arguments.
+    #   Expect:
+    #       excel_processor data_file.xlsx
+    #   Can also optionally specify the sheet:
+    #       excel_processor data_file.xlsx Patients
+
+    args = sys.argv[1:]
+
+    if isinstance(args, list) and len(args) > 0:
+        target_filename = args[0]
+        sheet_name = None
+
+        if len(args) > 1:
+            sheet_name = args[1]
+            parser = ExcelParser(excel_filename=target_filename, sheet_name=sheet_name)
+        else:
+            parser = ExcelParser(excel_filename=target_filename)
+
+        parser.extract_into_new_column(
+            column_name="REPORT",
+            pattern=r"Date of Exam:\s?(\d{1,2}/\d{1,2}/\d{4})",
+            new_column="Date of Exam",
+        )
+        parser.extract_into_new_column(
+            column_name="REPORT",
+            pattern=r"LV EF MOD BP:\s?(\d+\.?\d*\s?%)",
+            new_column="LV EF %",
+        )
+        parser.extract_into_new_column(
+            column_name="REPORT",
+            pattern=r"LVIDd:\s?(\d+\.?\d*\s?cm)",
+            new_column="LVIDd",
+        )
+        parser.extract_into_new_column(
+            column_name="REPORT",
+            pattern=r"RVSP/PASP:\s?(\d+\.?\d*\s?mmHg)",
+            new_column="RVSP",
+        )
+        parser.extract_into_new_column(
+            column_name="REPORT",
+            pattern=r"TAPSE \(2D\):\s?(\d+\.?\d*\s?cm)",
+            new_column="TAPSE (2D)",
+        )
+        parser.extract_into_new_column(
+            column_name="REPORT",
+            pattern=r"RV S. Vmax:\s?(\d+\.?\d*\s?m/s)",
+            new_column="RV S' Vmax",
+        )
+        parser.extract_into_new_column(
+            column_name="REPORT",
+            pattern=r"MV e. \(lateral\):\s?(\d+\.?\d*\s?m/s)",
+            new_column="MV e' lateral",
+        )
+        name, extension = os.path.splitext(os.path.basename(target_filename))
+
+        if sheet_name:
+            output_filename = os.path.join(
+                os.path.dirname(target_filename), name + "_" + sheet_name + extension
+            )
+        else:
+            output_filename = os.path.join(
+                os.path.dirname(target_filename), name + "_revised" + extension
+            )
+
+        parser.write_to_excel(new_file_name=output_filename)
+
+
+if __name__ == "__main__":
+    main()

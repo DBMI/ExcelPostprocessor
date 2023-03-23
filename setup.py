@@ -9,5 +9,6 @@ setup(
     license='',
     author='Kevin J. Delaney',
     author_email='kjdelaney@ucsd.edu',
-    description='Python tools to search Excel columns and extract measurements.'
+    description='Python tools to search Excel columns and extract measurements.',
+    entry_points={"console_scripts": ["excel_postprocessor=excel_postprocessor.__main__:main"]}
 )
