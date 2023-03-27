@@ -5,7 +5,7 @@ from numpy import isnan
 import os.path
 import pandas
 import pytest
-from excel_postprocessor.excel_postprocessor import ExcelParser
+from excelpostprocessor.excel_postprocessor import ExcelParser
 
 
 def test_parser(test_excel_filename):
@@ -32,7 +32,7 @@ def test_parser(test_excel_filename):
 
 
 def test_parser_corner_cases(test_excel_filename):
-    parser = ExcelParser(excel_filename=test_excel_filename)
+    parser = ExcelParser(excel_filename=test_excel_filename, sheet_name="Patients")
     assert isinstance(parser, ExcelParser)
 
     #   Test extraction to list.
@@ -46,10 +46,10 @@ def test_parser_corner_cases(test_excel_filename):
 
 def test_parser_error(test_excel_filename):
     with pytest.raises(TypeError):
-        parser = ExcelParser(excel_filename=1979)
+        ExcelParser(excel_filename=1979)
 
     with pytest.raises(FileNotFoundError):
-        parser = ExcelParser(excel_filename="not here.excel")
+        ExcelParser(excel_filename="not here.excel")
 
     parser = ExcelParser(excel_filename=test_excel_filename)
     assert isinstance(parser, ExcelParser)

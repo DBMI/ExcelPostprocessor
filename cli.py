@@ -1,4 +1,4 @@
-from excel_postprocessor.__main__ import main
+from excelpostprocessor.__main__ import main
 
 
 if __name__ == '__main__':

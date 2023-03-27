@@ -1,9 +1,11 @@
-from excel_postprocessor.excel_postprocessor import ExcelParser
+import os
+from excelpostprocessor.excel_postprocessor import ExcelParser
 
 
-def test_more_realistic():
-    target_filename = 'test_data.xlsx'
-    parser = ExcelParser(excel_filename=target_filename)
+def test_more_realistic(test_realistic_excel_filename, test_patients_excel_filename):
+    parser = ExcelParser(
+        excel_filename=test_realistic_excel_filename, sheet_name="Patients"
+    )
 
     parser.extract_into_new_column(
         column_name="REPORT",
@@ -40,4 +42,10 @@ def test_more_realistic():
         pattern=r"MV e. \(lateral\):\s?(\d+\.?\d*\s?m/s)",
         new_column="MV e' lateral",
     )
-    parser.write_to_excel()
+
+    if os.path.exists(test_patients_excel_filename):
+        os.remove(test_patients_excel_filename)
+
+    assert not os.path.exists(test_patients_excel_filename)
+    parser.write_to_excel(new_file_name=test_patients_excel_filename)
+    assert os.path.exists(test_patients_excel_filename)
