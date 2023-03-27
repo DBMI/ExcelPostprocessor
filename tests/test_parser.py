@@ -5,7 +5,7 @@ from numpy import isnan
 import os.path
 import pandas
 import pytest
-from excel_postprocessor.excel_postprocessor import ExcelParser
+from excelpostprocessor.excel_postprocessor import ExcelParser
 
 
 def test_parser(test_excel_filename):
@@ -15,14 +15,14 @@ def test_parser(test_excel_filename):
 
     #   Test extraction to list.
     extracted_data = parser.extract(
-        column_name="Report", pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})"
+        column_name="REPORT", pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})"
     )
     assert isinstance(extracted_data, list)
     assert len(extracted_data) == 3
 
     #   Test extraction to new dataframe column.
     parser.extract_into_new_column(
-        column_name="Report",
+        column_name="REPORT",
         pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})",
         new_column="Date",
     )
@@ -32,7 +32,7 @@ def test_parser(test_excel_filename):
 
 
 def test_parser_corner_cases(test_excel_filename):
-    parser = ExcelParser(excel_filename=test_excel_filename)
+    parser = ExcelParser(excel_filename=test_excel_filename, sheet_name="Patients")
     assert isinstance(parser, ExcelParser)
 
     #   Test extraction to list.
@@ -46,10 +46,10 @@ def test_parser_corner_cases(test_excel_filename):
 
 def test_parser_error(test_excel_filename):
     with pytest.raises(TypeError):
-        parser = ExcelParser(excel_filename=1979)
+        ExcelParser(excel_filename=1979)
 
     with pytest.raises(FileNotFoundError):
-        parser = ExcelParser(excel_filename="not here.excel")
+        ExcelParser(excel_filename="not here.excel")
 
     parser = ExcelParser(excel_filename=test_excel_filename)
     assert isinstance(parser, ExcelParser)
@@ -65,7 +65,7 @@ def test_parser_error(test_excel_filename):
     with pytest.raises(TypeError):
         #   pattern not a str
         parser.extract_into_new_column(
-            column_name="Report",
+            column_name="REPORT",
             pattern=1979,
             new_column="Date",
         )
@@ -81,14 +81,14 @@ def test_parser_error(test_excel_filename):
     with pytest.raises(ValueError):
         #   pattern contains no capture groups
         parser.extract_into_new_column(
-            column_name="Report",
+            column_name="REPORT",
             pattern="malformed",
             new_column="Date",
         )
 
     #   pattern not found
     parser.extract_into_new_column(
-        column_name="Report",
+        column_name="REPORT",
         pattern=r"not present: (\d+)",
         new_column="Not present",
     )
@@ -101,7 +101,7 @@ def test_parser_specified_sheet(test_excel_filename, test_revised_excel_filename
 
     #   Test extraction to new dataframe column.
     parser.extract_into_new_column(
-        column_name="Report", pattern=r"pH: (\d+\.?\d*)", new_column="pH"
+        column_name="REPORT", pattern=r"pH: (\d+\.?\d*)", new_column="pH"
     )
     df = parser.data()
     assert isinstance(df, pandas.DataFrame)
@@ -129,7 +129,7 @@ def test_parser_writing(test_excel_filename, test_revised_excel_filename):
 
     #   Test extraction of Date to new dataframe column.
     parser.extract_into_new_column(
-        column_name="Report",
+        column_name="REPORT",
         pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})",
         new_column="Date",
     )
@@ -139,7 +139,7 @@ def test_parser_writing(test_excel_filename, test_revised_excel_filename):
 
     #   Test extraction of temperature.
     parser.extract_into_new_column(
-        column_name="Report",
+        column_name="REPORT",
         pattern=r"Air temperature: (\d+\.?\d*\s?[^\s\.]+)",
         new_column="Air temp",
     )

@@ -2,7 +2,6 @@
 Moodule: contains class ExcelParser.
 """
 import os
-from typing import Union
 
 import openpyxl
 import pandas
@@ -13,7 +12,7 @@ class ExcelParser:
     Reads existing Excel spreadsheet, parses desired targets & adds columns.
     """
 
-    def __init__(self, excel_filename: str, sheet_name: Union[str, None] = None):
+    def __init__(self, excel_filename: str, sheet_name=None):
         """Reads in one sheet of the Excel file.
 
         Parameters
@@ -103,7 +102,7 @@ class ExcelParser:
         extracted_data = self.__extract_series(column_name=column_name, pattern=pattern)
         self.__df[new_column] = extracted_data
 
-    def write_to_excel(self, new_file_name: Union[str, None] = None) -> str:
+    def write_to_excel(self, new_file_name=None) -> str:
         """Write out the dataframe we've been building.
 
         Parameters
