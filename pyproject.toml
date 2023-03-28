@@ -3,7 +3,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-target-version = ["py37", "py38", "py39"]
+target-version = ["py37", "py38", "py39", "py310", "py311"]
 include = '\.pyi?$'
 
 [tool.coverage.report]
@@ -32,7 +32,7 @@ disable_error_code = ["call-arg", "call-overload", "var-annotated"]
 
 [tool.poetry]
 name = "ExcelPostprocessor"
-version = "0.0.1"
+version = "0.3.0"
 description = "Python tools to search Excel fields and extract measurements."
 authors = [
     "Kevin J. Delaney <kjdelaney@ucsd.edu>",

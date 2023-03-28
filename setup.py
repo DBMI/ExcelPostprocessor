@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='ExcelPostprocessor',
-    version='0.2.0',
+    version='0.3.0',
     packages=['excelpostprocessor'],
     package_dir={'': 'src'},
     url='https://github.com/DBMI/ExcelPostprocessor',
