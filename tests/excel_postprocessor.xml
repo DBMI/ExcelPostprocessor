@@ -1,5 +1,5 @@
 <workbook>
-    <name>tests\test_data.xlsx</name>
+    <name>test_data.xlsx</name>
     <sheet>
         <name>Patients</name>
         <source_column>
