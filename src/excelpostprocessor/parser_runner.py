@@ -2,7 +2,9 @@
 Module: contains class ParserRunner.
 """
 import os
+
 import xmltodict
+
 from excelpostprocessor.excel_postprocessor import ExcelParser
 
 
@@ -21,7 +23,7 @@ class ParserRunner:
 
         self.__config_filename = config_filename
 
-    def run(self) -> None:
+    def process(self) -> None:
         with open(self.__config_filename, "r", encoding="utf-8") as file:
             my_xml = file.read()
 

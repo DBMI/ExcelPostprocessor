@@ -1,5 +1,5 @@
 <workbook>
-    <name>tests\test_data.xlsx</name>
+    <name>..\..\tests\test_data.xlsx</name>
     <sheet>
         <name>Patients</name>
         <source_column>
@@ -29,7 +29,7 @@
                     <new_column>RV S' Vmax</new_column>
                 </extract>
                 <extract>
-                    <pattern>MV e. \(lateral\):\s?(\d+\.?\d*\)s?m/s</pattern>
+                    <pattern>MV e. \(lateral\):\s?(\d+\.?\d*)\s?m/s</pattern>
                     <new_column>MV e' lateral</new_column>
                 </extract>
         </source_column>
