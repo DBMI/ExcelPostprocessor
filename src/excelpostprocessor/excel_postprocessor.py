@@ -12,7 +12,7 @@ class ExcelParser:
     Reads existing Excel spreadsheet, parses desired targets & adds columns.
     """
 
-    def __init__(self, excel_filename: str, sheet_name=None):
+    def __init__(self, excel_filename: str, sheet_name: str = None) -> None:
         """Reads in one sheet of the Excel file.
 
         Parameters
@@ -35,7 +35,9 @@ class ExcelParser:
             wb.close()
 
         self.__sheet_name = sheet_name
-        self.__df = pandas.read_excel(self.__excel_filename, sheet_name=sheet_name)
+        self.__df: pandas.DataFrame = pandas.read_excel(
+            self.__excel_filename, sheet_name=sheet_name
+        )
 
         if not isinstance(self.__df, pandas.DataFrame):  # pragma: no cover
             raise RuntimeError(f"Unable to read file '{self.__excel_filename}'.")
@@ -102,7 +104,15 @@ class ExcelParser:
         extracted_data = self.__extract_series(column_name=column_name, pattern=pattern)
         self.__df[new_column] = extracted_data
 
-    def write_to_excel(self, new_file_name=None) -> str:
+        #   The source column is almost always a long string, and it's more convenient if
+        #   it stays the last column (so the long text doesn't overwrite the new extracted column).
+        #   So rearrange the dataframe columns to put the source column last.
+        cols = list(self.__df.columns.values)
+        rearranged_cols = [c for c in cols if c != column_name]
+        rearranged_cols.append(column_name)
+        self.__df = self.__df[rearranged_cols]
+
+    def write_to_excel(self, new_file_name: str = None) -> str:
         """Write out the dataframe we've been building.
 
         Parameters
