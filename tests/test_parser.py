@@ -10,7 +10,7 @@ from excelpostprocessor.excel_postprocessor import ExcelParser
 
 def test_parser(test_excel_filename):
     #   Test instantiation.
-    parser = ExcelParser(excel_filename=test_excel_filename)
+    parser = ExcelParser(excel_filename=test_excel_filename, sheet_name="Patients")
     assert isinstance(parser, ExcelParser)
 
     #   Test extraction to list.
@@ -18,7 +18,9 @@ def test_parser(test_excel_filename):
         column_name="REPORT", pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})"
     )
     assert isinstance(extracted_data, list)
-    assert len(extracted_data) == 3
+    assert len(extracted_data) == 4
+    num_valid = len([0 for x in extracted_data if isinstance(x, str)])
+    assert num_valid == 3
 
     #   Test extraction to new dataframe column.
     parser.extract_into_new_column(
@@ -31,6 +33,28 @@ def test_parser(test_excel_filename):
     assert "Date" in df
 
 
+def test_parser_cleaning(test_excel_filename):
+    #   Test instantiation.
+    parser = ExcelParser(excel_filename=test_excel_filename, sheet_name="Patients")
+    assert isinstance(parser, ExcelParser)
+
+    #   Exercise cleaning.
+    parser.clean_column(
+        column_name="REPORT",
+        pattern=r"Procedure (\d{1,2}/\d{1,2}/\d{4}) performed:?",
+        replace=r"Procedure performed: \1",
+    )
+
+    #   Test extraction to list. Now that it's cleaned, we should see FOUR matches.
+    extracted_data = parser.extract(
+        column_name="REPORT", pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})"
+    )
+    assert isinstance(extracted_data, list)
+    assert len(extracted_data) == 4
+    num_valid = len([0 for x in extracted_data if isinstance(x, str)])
+    assert num_valid == 4
+
+
 def test_parser_corner_cases(test_excel_filename):
     parser = ExcelParser(excel_filename=test_excel_filename, sheet_name="Patients")
     assert isinstance(parser, ExcelParser)
@@ -40,7 +64,7 @@ def test_parser_corner_cases(test_excel_filename):
         column_name="Empty", pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})"
     )
     assert isinstance(extracted_data, list)
-    assert len(extracted_data) == 3
+    assert len(extracted_data) == 4
     assert all([isnan(value) for value in extracted_data])
 
 
@@ -124,7 +148,7 @@ def test_parser_specified_sheet(test_excel_filename, test_revised_excel_filename
 
 def test_parser_writing(test_excel_filename, test_revised_excel_filename):
     #   Test instantiation.
-    parser = ExcelParser(excel_filename=test_excel_filename)
+    parser = ExcelParser(excel_filename=test_excel_filename, sheet_name="Patients")
     assert isinstance(parser, ExcelParser)
 
     #   Test extraction of Date to new dataframe column.
