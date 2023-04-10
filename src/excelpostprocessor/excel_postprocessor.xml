@@ -4,34 +4,42 @@
         <name>Patients</name>
         <source_column>
             <name>REPORT</name>
-                <extract>
-                    <pattern>Date of Exam:\s?(\d{1,2}/\d{1,2}/\d{4})</pattern>
-                    <new_column>Date of Exam</new_column>
-                </extract>
-                <extract>
-                    <pattern>LV EF MOD BP:\s?(\d+\.?\d*)\s?%</pattern>
-                    <new_column>LV EF %</new_column>
-                </extract>
-                <extract>
-                    <pattern>LVIDd:\s?(\d+\.?\d*)\s?cm</pattern>
-                    <new_column>LVIDd</new_column>
-                </extract>
-                <extract>
-                    <pattern>RVSP/PASP:\s?(\d+\.?\d*)\s?mmHg</pattern>
-                    <new_column>RVSP</new_column>
-                </extract>
-                <extract>
-                    <pattern>TAPSE \(2D\):\s?(\d+\.?\d*)\s?cm</pattern>
-                    <new_column>TAPSE (2D)</new_column>
-                </extract>
-                <extract>
-                    <pattern>RV S. Vmax:\s?(\d+\.?\d*)\s?m/s</pattern>
-                    <new_column>RV S' Vmax</new_column>
-                </extract>
-                <extract>
-                    <pattern>MV e. \(lateral\):\s?(\d+\.?\d*)\s?m/s</pattern>
-                    <new_column>MV e' lateral</new_column>
-                </extract>
+            <cleaning>
+                <pattern>Procedure (\d{1,2}/\d{1,2}/\d{4}) performed:?</pattern>
+                <replace>Procedure performed: \1</replace>
+            </cleaning>
+            <cleaning>
+                <pattern>VL EF MOD</pattern>
+                <replace>LV EF MOD</replace>
+            </cleaning>
+            <extract>
+                <pattern>Date of Exam:\s?(\d{1,2}/\d{1,2}/\d{4})</pattern>
+                <new_column>Date of Exam</new_column>
+            </extract>
+            <extract>
+                <pattern>LV EF MOD BP:\s?(\d+\.?\d*)\s?%</pattern>
+                <new_column>LV EF %</new_column>
+            </extract>
+            <extract>
+                <pattern>LVIDd:\s?(\d+\.?\d*)\s?cm</pattern>
+                <new_column>LVIDd</new_column>
+            </extract>
+            <extract>
+                <pattern>RVSP/PASP:\s?(\d+\.?\d*)\s?mmHg</pattern>
+                <new_column>RVSP</new_column>
+            </extract>
+            <extract>
+                <pattern>TAPSE \(2D\):\s?(\d+\.?\d*)\s?cm</pattern>
+                <new_column>TAPSE (2D)</new_column>
+            </extract>
+            <extract>
+                <pattern>RV S. Vmax:\s?(\d+\.?\d*)\s?m/s</pattern>
+                <new_column>RV S' Vmax</new_column>
+            </extract>
+            <extract>
+                <pattern>MV e. \(lateral\):\s?(\d+\.?\d*)\s?m/s</pattern>
+                <new_column>MV e' lateral</new_column>
+            </extract>
         </source_column>
     </sheet>
 </workbook>

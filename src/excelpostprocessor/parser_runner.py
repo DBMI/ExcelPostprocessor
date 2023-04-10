@@ -23,6 +23,34 @@ class ParserRunner:
 
         self.__config_filename = config_filename
 
+    def __column_name(self, column_config: dict, sheet_name: str) -> str:
+        """Extracts the column name from the dict created from the .xml file.
+
+        Parameters
+        ----------
+        column_config : dict
+        sheet_name : str
+
+        Returns
+        -------
+        column_name : str
+        """
+
+        if not isinstance(column_config, dict):
+            raise TypeError("Argument 'column_config' is not the expected dict.")
+
+        if not isinstance(sheet_name, str):
+            raise TypeError("Argument 'sheet_name' is not the expected str.")
+
+        if "name" not in column_config:
+            raise SyntaxError(
+                f"Unable to find 'name' for this source column in sheet '{sheet_name}' "
+                f"in file '{self.__config_filename}'."
+            )
+
+        column_name = column_config["name"]
+        return column_name
+
     def __extract_sheets_from_workbook(self, workbook_config: dict) -> list:
         if not isinstance(workbook_config, dict):
             raise TypeError("Argument 'workbook_config' is not the expected dict.")
@@ -78,7 +106,7 @@ class ParserRunner:
 
     def __process_column(
         self, parser: ExcelParser, column_config: dict, sheet_name: str
-    ) -> None:
+    ) -> bool:
         """Extracts the information for this column's processing & calls the ExcelParser object
         to parse & generate the new column.
 
@@ -86,6 +114,9 @@ class ParserRunner:
         ----------
         column_config : dict    Defines the column name, regex and the name of the column to be created.
 
+        Returns
+        -------
+        need_to_restore_column : bool   Lets calling method know we'll need to restore this column to its original value before writing out results.
         """
         if not isinstance(parser, ExcelParser):
             raise TypeError("Argument 'parser' is not the expected ExcelParser object.")
@@ -96,13 +127,25 @@ class ParserRunner:
         if not isinstance(sheet_name, str):
             raise TypeError("Argument 'sheet_name' is not the expected str.")
 
-        if "name" not in column_config:
-            raise SyntaxError(
-                f"Unable to find 'name' for this source column in sheet '{sheet_name}' "
-                f"in file '{self.__config_filename}'."
+        source_column_name = self.__column_name(
+            column_config=column_config, sheet_name=sheet_name
+        )
+        need_to_restore_column = False
+
+        if "cleaning" in column_config:
+            cleaning_config = column_config["cleaning"]
+
+            if isinstance(cleaning_config, dict):
+                cleaning_config = [cleaning_config]
+
+            self.__process_column_cleaning(
+                parser=parser,
+                cleaning_rules=cleaning_config,
+                sheet_name=sheet_name,
+                column_name=source_column_name,
             )
 
-        source_column_name = column_config["name"]
+            need_to_restore_column = True
 
         if "extract" not in column_config:
             raise SyntaxError(
@@ -115,21 +158,83 @@ class ParserRunner:
         if isinstance(extracts_config, dict):
             extracts_config = [extracts_config]
 
-        for this_extract in extracts_config:
+        self.__process_column_extract(
+            parser=parser,
+            extracts=extracts_config,
+            sheet_name=sheet_name,
+            column_name=source_column_name,
+        )
+
+        return need_to_restore_column
+
+    def __process_column_cleaning(
+        self,
+        parser: ExcelParser,
+        cleaning_rules: list,
+        sheet_name: str,
+        column_name: str,
+    ) -> None:
+        if not isinstance(parser, ExcelParser):
+            raise TypeError("Argument 'parser' is not the expected ExcelParser object.")
+
+        if not isinstance(cleaning_rules, list):
+            raise TypeError("Argument 'cleaning_rules' is not the expected list.")
+
+        if not isinstance(sheet_name, str):
+            raise TypeError("Argument 'sheet_name' is not the expected str.")
+
+        if not isinstance(column_name, str):
+            raise TypeError("Argument 'column_name' is not the expected str.")
+
+        for this_cleaning_rule in cleaning_rules:
+            if "pattern" not in this_cleaning_rule:
+                raise SyntaxError(
+                    f"Unable to find 'pattern' for column '{column_name}' in sheet '{sheet_name}' "
+                    f"in file '{self.__config_filename}'."
+                )
+
+            if "replace" not in this_cleaning_rule:
+                raise SyntaxError(
+                    f"Unable to find 'replace' for column '{column_name}' in sheet '{sheet_name}' "
+                    f"in file '{self.__config_filename}'."
+                )
+
+            parser.clean_column(
+                column_name=column_name,
+                pattern=this_cleaning_rule["pattern"],
+                replace=this_cleaning_rule["replace"],
+            )
+
+    def __process_column_extract(
+        self, parser: ExcelParser, extracts: list, sheet_name: str, column_name: str
+    ) -> None:
+        if not isinstance(parser, ExcelParser):
+            raise TypeError("Argument 'parser' is not the expected ExcelParser object.")
+
+        if not isinstance(extracts, list):
+            raise TypeError("Argument 'extracts' is not the expected list.")
+
+        if not isinstance(sheet_name, str):
+            raise TypeError("Argument 'sheet_name' is not the expected str.")
+
+        if not isinstance(column_name, str):
+            raise TypeError("Argument 'column_name' is not the expected str.")
+
+        for this_extract in extracts:
             if "pattern" not in this_extract:
                 raise SyntaxError(
-                    f"Unable to find 'pattern' for column '{source_column_name}' in sheet '{sheet_name}' "
+                    f"Unable to find 'pattern' for column '{column_name}' in sheet '{sheet_name}' "
                     f"in file '{self.__config_filename}'."
                 )
 
             if "new_column" not in this_extract:
                 raise SyntaxError(
-                    f"Unable to find 'new_column' for column '{source_column_name}' in sheet '{sheet_name}' "
+                    f"Unable to find 'new_column' for column '{column_name}' in sheet '{sheet_name}' "
                     f"in file '{self.__config_filename}'."
                 )
 
             parser.extract_into_new_column(
-                column_name=source_column_name,
+                column_name=column_name,
                 pattern=this_extract["pattern"],
                 new_column=this_extract["new_column"],
             )
@@ -173,9 +278,15 @@ class ParserRunner:
                 )
 
             column_config = this_sheet["source_column"]
-            self.__process_column(
+            need_to_restore_column = self.__process_column(
                 parser=excel_parser, column_config=column_config, sheet_name=sheet_name
             )
+
+            if need_to_restore_column:
+                source_column_name = self.__column_name(
+                    column_config=column_config, sheet_name=sheet_name
+                )
+                excel_parser.restore_original_column(column_name=source_column_name)
 
             #   Write out results for this worksheet.
             filename_created = excel_parser.write_to_excel(

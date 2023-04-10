@@ -45,7 +45,22 @@ Run the app with:
 If the config file name is not specified, the app will look for the default file `excel_postprocessor.xml`.
 The app creates a new Excel workbook for each worksheet to be processed.
 
+To handle variations in how data are present, you can add `<cleaning>` statements to define a regex `replace` statement:
 
+    <workbook>
+            <name>test_data.xlsx</name>
+            <sheet>
+                <name>Patients</name>
+                <source_column>
+                    <name>Report</name>
+                    <cleaning>
+                        <pattern>Proximal eccentric LAD:</pattern>
+                        <replace>Proximal LAD eccentric:</replace>
+                    </cleaning>
+                    <extract>....
+
+These `<cleaning>` statements will be executed on the specified column before the `<extract>` statements,
+but the original column--not the modified column--will be shown in the Excel file that is created. 
 ## Installation
 Copy the directory `excel_postprocess.dist` to the directory containing the Excel workbook. 
 Customize the configuration file `excel_postprocessor.xml` to specify the workbook, worksheets and

@@ -10,9 +10,21 @@ def fixture_test_config_filename() -> str:
     return os.path.join(os.path.dirname(__file__), "excel_postprocessor.xml")
 
 
+@pytest.fixture(name="test_config_filename_multiple_rules")
+def fixture_test_config_filename_multiple_rules() -> str:
+    return os.path.join(
+        os.path.dirname(__file__), "excel_postprocessor_multiple_rules.xml"
+    )
+
+
 @pytest.fixture(name="test_excel_filename")
 def fixture_test_excel_filename() -> str:
     return os.path.join(os.path.dirname(__file__), "dummy_data.xlsx")
+
+
+@pytest.fixture(name="test_labs_excel_filename")
+def fixture_test_labs_excel_filename() -> str:
+    return os.path.join(os.path.dirname(__file__), "test_data_Labs.xlsx")
 
 
 @pytest.fixture(name="test_malformed_config_filename")
