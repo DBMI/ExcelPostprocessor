@@ -2,14 +2,20 @@
     Excel Postprocessor applies Regular Expressions to an existing Excel workbook, extracting data into a new column.
 """
 import argparse
-import os.path
+import sys
+from typing import Union
 
 from excelpostprocessor.parser_runner import ParserRunner
 
 CONFIG_FILENAME = "excel_postprocessor.xml"
 
 
-def main() -> None:
+def main(config_filename: Union[str, None] = None) -> None:
+    runner = ParserRunner(config_filename=config_filename)
+    runner.process()
+
+
+if __name__ == "__main__":
     #   Handle 'help' case.
     parser = argparse.ArgumentParser(
         description=r"""
@@ -50,14 +56,7 @@ def main() -> None:
     parser.add_argument(
         "--config", default=CONFIG_FILENAME, help="Name of XML config file."
     )
-    args = parser.parse_args()
 
-    if os.path.exists(args.config):
-        runner = ParserRunner(config_filename=args.config)
-        runner.process()
-    else:
-        parser.print_help()
-
-
-if __name__ == "__main__":
-    main()
+    # https://stackoverflow.com/a/47440202
+    args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
+    main(config_filename=args.config)
