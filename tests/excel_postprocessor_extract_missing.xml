@@ -1,0 +1,13 @@
+<workbook>
+    <name>test_data.xlsx</name>
+    <sheet>
+        <name>Patients</name>
+        <source_column>
+            <name>REPORT</name>
+            <cleaning>
+                <pattern>VL EF MOD</pattern>
+                <replace>LV EF MOD</replace>
+            </cleaning>
+        </source_column>
+    </sheet>
+</workbook>

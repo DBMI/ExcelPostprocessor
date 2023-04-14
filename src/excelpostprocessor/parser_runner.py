@@ -25,6 +25,7 @@ class ParserRunner:
 
     def __column_name(self, column_config: dict, sheet_name: str) -> str:
         """Extracts the column name from the dict created from the .xml file.
+        Assumes calling methods have screened inputs to be proper type.
 
         Parameters
         ----------
@@ -35,13 +36,6 @@ class ParserRunner:
         -------
         column_name : str
         """
-
-        if not isinstance(column_config, dict):
-            raise TypeError("Argument 'column_config' is not the expected dict.")
-
-        if not isinstance(sheet_name, str):
-            raise TypeError("Argument 'sheet_name' is not the expected str.")
-
         if "name" not in column_config:
             raise SyntaxError(
                 f"Unable to find 'name' for this source column in sheet '{sheet_name}' "
@@ -52,7 +46,19 @@ class ParserRunner:
         return column_name
 
     def __extract_sheets_from_workbook(self, workbook_config: dict) -> list:
-        if not isinstance(workbook_config, dict):
+        """Pulls a list of sheet configuration dictionaries from the overall workbook config dict.
+
+        Parameters
+        ----------
+        workbook_config : dict
+
+        Returns
+        -------
+        sheets_config : list of dict
+        """
+        #   Can't exercise this type checking because it's already tested in the previous method.
+        #   But leave this type check here in case modules get rearranged in the future.
+        if not isinstance(workbook_config, dict):  # pragma: no cover
             raise TypeError("Argument 'workbook_config' is not the expected dict.")
 
         if "sheet" not in workbook_config:
@@ -90,19 +96,28 @@ class ParserRunner:
 
         workbook_name = config["name"]
 
-        if not os.path.exists(workbook_name):
+        if not isinstance(workbook_name, str) or not os.path.exists(workbook_name):
             raise FileExistsError(f"Unable to find file '{workbook_name}'.")
 
         return workbook_name
 
-    def process(self) -> None:
-        """Processes the job, reading the config file, setting up and running an ExcelParser object."""
+    def process(self) -> bool:
+        """Processes the job, reading the config file, setting up and running an ExcelParser object.
+
+        Returns
+        -------
+        success : bool   Did anything happen?
+        """
+
         workbook_config = self.__read_config()
         source_filename = self.__extract_workbook_name(config=workbook_config)
         sheets_config = self.__extract_sheets_from_workbook(
             workbook_config=workbook_config
         )
-        self.__process_sheets(sheets_config=sheets_config, source_file=source_filename)
+        success: bool = self.__process_sheets(
+            sheets_config=sheets_config, source_file=source_filename
+        )
+        return success
 
     def __process_column(
         self, parser: ExcelParser, column_config: dict, sheet_name: str
@@ -118,18 +133,16 @@ class ParserRunner:
         -------
         need_to_restore_column : bool   Lets calling method know we'll need to restore this column to its original value before writing out results.
         """
-        if not isinstance(parser, ExcelParser):
-            raise TypeError("Argument 'parser' is not the expected ExcelParser object.")
-
         if not isinstance(column_config, dict):
             raise TypeError("Argument 'column_config' is not the expected dict.")
-
-        if not isinstance(sheet_name, str):
-            raise TypeError("Argument 'sheet_name' is not the expected str.")
 
         source_column_name = self.__column_name(
             column_config=column_config, sheet_name=sheet_name
         )
+
+        if not isinstance(source_column_name, str):
+            raise TypeError("Argument 'source_column_name' is not the expected str.")
+
         need_to_restore_column = False
 
         if "cleaning" in column_config:
@@ -174,18 +187,6 @@ class ParserRunner:
         sheet_name: str,
         column_name: str,
     ) -> None:
-        if not isinstance(parser, ExcelParser):
-            raise TypeError("Argument 'parser' is not the expected ExcelParser object.")
-
-        if not isinstance(cleaning_rules, list):
-            raise TypeError("Argument 'cleaning_rules' is not the expected list.")
-
-        if not isinstance(sheet_name, str):
-            raise TypeError("Argument 'sheet_name' is not the expected str.")
-
-        if not isinstance(column_name, str):
-            raise TypeError("Argument 'column_name' is not the expected str.")
-
         for this_cleaning_rule in cleaning_rules:
             if "pattern" not in this_cleaning_rule:
                 raise SyntaxError(
@@ -208,18 +209,6 @@ class ParserRunner:
     def __process_column_extract(
         self, parser: ExcelParser, extracts: list, sheet_name: str, column_name: str
     ) -> None:
-        if not isinstance(parser, ExcelParser):
-            raise TypeError("Argument 'parser' is not the expected ExcelParser object.")
-
-        if not isinstance(extracts, list):
-            raise TypeError("Argument 'extracts' is not the expected list.")
-
-        if not isinstance(sheet_name, str):
-            raise TypeError("Argument 'sheet_name' is not the expected str.")
-
-        if not isinstance(column_name, str):
-            raise TypeError("Argument 'column_name' is not the expected str.")
-
         for this_extract in extracts:
             if "pattern" not in this_extract:
                 raise SyntaxError(
@@ -239,19 +228,19 @@ class ParserRunner:
                 new_column=this_extract["new_column"],
             )
 
-    def __process_sheets(self, sheets_config: list, source_file: str) -> None:
+    def __process_sheets(self, sheets_config: list, source_file: str) -> bool:
         """For each sheet, build the ExcelParser object aimed at that sheet & process all its columns.
 
         Parameters
         ----------
         sheets_config : list of dict objects, one per worksheet
         source_file : Excel workbook being processed
-        """
-        if not isinstance(sheets_config, list):
-            raise TypeError("Argument 'sheets_config' is not the expected list.")
 
-        if not isinstance(source_file, str):
-            raise TypeError("Argument 'source_file' is not the expected str.")
+        Returns
+        -------
+        success : bool  Did it work?
+        """
+        success_per_sheet = []
 
         name, extension = os.path.splitext(os.path.basename(source_file))
 
@@ -263,13 +252,26 @@ class ParserRunner:
 
             #   We'll write out a new Excel workbook for every sheet, marked with the sheet name.
             sheet_name = this_sheet["name"]
+
+            #   In case it's None.
+            if not isinstance(sheet_name, str):
+                raise TypeError("Argument 'sheet_name' is not the expected str.")
+
             output_filename = os.path.join(
                 os.path.dirname(source_file), name + "_" + sheet_name + extension
             )
 
-            excel_parser = ExcelParser(
-                excel_filename=source_file, sheet_name=sheet_name
-            )
+            #   Try to instantiate an ExcelParser object for this sheet name,
+            #   but there's no guarantee the sheet exists in the Excel file,
+            #   so we'll trap the error & skip the sheet.
+            try:
+                excel_parser = ExcelParser(
+                    excel_filename=source_file, sheet_name=sheet_name
+                )
+            except ValueError:
+                print(f"Worksheet {sheet_name} not found; skipping.")
+                success_per_sheet.append(False)
+                continue
 
             if "source_column" not in this_sheet:
                 raise SyntaxError(
@@ -293,6 +295,9 @@ class ParserRunner:
                 new_file_name=output_filename
             )
             print(f"Created file '{filename_created}'.")
+            success_per_sheet.append(True)
+
+        return all(success_per_sheet)
 
     def __read_config(self) -> dict:
         """Reads/parses the configuration .xml file.

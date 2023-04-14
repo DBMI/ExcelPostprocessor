@@ -87,6 +87,20 @@ def test_parser_error(test_excel_filename):
         )
 
     with pytest.raises(TypeError):
+        #   column_name not a str
+        parser.extract(
+            column_name=1979,
+            pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})",
+        )
+
+    with pytest.raises(TypeError):
+        #   pattern not a str
+        parser.extract(
+            column_name="REPORT",
+            pattern=1979,
+        )
+
+    with pytest.raises(TypeError):
         #   pattern not a str
         parser.extract_into_new_column(
             column_name="REPORT",
@@ -96,10 +110,33 @@ def test_parser_error(test_excel_filename):
 
     with pytest.raises(AttributeError):
         #   column not present in spreadsheet
+        parser.extract(
+            column_name="Column Not Here",
+            pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})",
+        )
+
+    with pytest.raises(AttributeError):
+        #   column not present in spreadsheet
         parser.extract_into_new_column(
             column_name="Column Not Here",
             pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})",
             new_column="Date",
+        )
+
+    with pytest.raises(AttributeError):
+        #   column not present in spreadsheet
+        parser.clean_column(
+            column_name="Not There",
+            pattern=r"Procedure (\d{1,2}/\d{1,2}/\d{4}) performed:?",
+            replace=r"Procedure performed: \1",
+        )
+
+    with pytest.raises(TypeError):
+        #   new_column not a str
+        parser.extract_into_new_column(
+            column_name="REPORT",
+            pattern=r"performed: (\d{1,2}/\d{1,2}/\d{4})",
+            new_column=1979,
         )
 
     with pytest.raises(ValueError):
@@ -116,6 +153,17 @@ def test_parser_error(test_excel_filename):
         pattern=r"not present: (\d+)",
         new_column="Not present",
     )
+
+
+def test_parser_restore_column(test_excel_filename):
+    parser = ExcelParser(excel_filename=test_excel_filename, sheet_name="Patients")
+    assert isinstance(parser, ExcelParser)
+
+    with pytest.raises(TypeError):
+        parser.restore_original_column(column_name=1979)
+
+    with pytest.raises(AttributeError):
+        parser.restore_original_column(column_name="Not there")
 
 
 def test_parser_specified_sheet(test_excel_filename, test_revised_excel_filename):

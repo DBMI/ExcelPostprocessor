@@ -58,5 +58,5 @@ if __name__ == "__main__":
     )
 
     # https://stackoverflow.com/a/47440202
-    args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
+    args = parser.parse_args(args=None if sys.argv[1:] else ["--help"])
     main(config_filename=args.config)
