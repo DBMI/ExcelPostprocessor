@@ -3,14 +3,13 @@
 """
 import argparse
 import sys
-from typing import Union
 
 from excelpostprocessor.parser_runner import ParserRunner
 
-CONFIG_FILENAME = "excel_postprocessor.xml"
+CONFIG_FILENAME = "excel_postprocess.xml"
 
 
-def main(config_filename: Union[str, None] = None) -> None:
+def main(config_filename: str) -> None:
     runner = ParserRunner(config_filename=config_filename)
     runner.process()
 
@@ -47,7 +46,7 @@ if __name__ == "__main__":
         Run the app with:
             excel_postprocess.exe --config <name of config file.xml>
 
-        If the config file name is not specified, app will look for the default file excel_postprocessor.xml.
+        If the config file name is not specified, app will look for the default file excel_postprocess.xml.
         """,
         epilog="""The app creates a new Excel workbook for each worksheet to be processed.""",
         formatter_class=argparse.RawTextHelpFormatter,

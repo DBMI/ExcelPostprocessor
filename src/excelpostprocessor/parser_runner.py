@@ -2,7 +2,7 @@
 Module: contains class ParserRunner.
 """
 import os
-
+from typing import Union
 import xmltodict
 
 from excelpostprocessor.excel_postprocessor import ExcelParser
@@ -42,7 +42,7 @@ class ParserRunner:
                 f"in file '{self.__config_filename}'."
             )
 
-        column_name = column_config["name"]
+        column_name: str = column_config["name"]
         return column_name
 
     def __extract_sheets_from_workbook(self, workbook_config: dict) -> list:
@@ -66,12 +66,15 @@ class ParserRunner:
                 f"Unable to find 'workbook/sheet' in file '{self.__config_filename}'."
             )
 
-        sheets_config = workbook_config["sheet"]
+        raw_sheets_config: Union[dict, list] = workbook_config["sheet"]
+        sheets_config: list
 
         #   If there's only one sheet, sheets_config will be a dict.
         #   Let's turn it into a single-element list.
-        if isinstance(sheets_config, dict):
-            sheets_config = [sheets_config]
+        if isinstance(raw_sheets_config, dict):
+            sheets_config = [raw_sheets_config]
+        else:
+            sheets_config = raw_sheets_config
 
         return sheets_config
 
@@ -321,4 +324,5 @@ class ParserRunner:
                 f"Unable to find 'workbook' in file '{self.__config_filename}'."
             )
 
-        return config["workbook"]
+        workbook_config: dict = config["workbook"]
+        return workbook_config

@@ -1,0 +1,13 @@
+<workbook>
+    <name>test_data.xlsx</name>
+    <sheet>
+        <name>Not there</name>
+        <source_column>
+            <name>REPORT</name>
+            <extract>
+                <pattern>MV e. \(lateral\):\s?(\d+\.?\d*)\s?m/s</pattern>
+                <new_column>MV e' lateral</new_column>
+            </extract>
+        </source_column>
+    </sheet>
+</workbook>

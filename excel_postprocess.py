@@ -3,7 +3,7 @@ import sys
 
 from excelpostprocessor.__main__ import main
 
-CONFIG_FILENAME = "excel_postprocessor.xml"
+CONFIG_FILENAME = "excel_postprocess.xml"
 
 
 if __name__ == '__main__':
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         Run the app with:
             excel_postprocess.exe --config <name of config file.xml>
 
-        If the config file name is not specified, app will look for the default file excel_postprocessor.xml.
+        If the config file name is not specified, app will look for the default file excel_postprocess.xml.
         """,
         epilog="""The app creates a new Excel workbook for each worksheet to be processed.""",
         formatter_class=argparse.RawTextHelpFormatter,
