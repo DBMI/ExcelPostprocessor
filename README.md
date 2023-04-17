@@ -15,7 +15,7 @@
 `Excel Postprocessor` applies Regular Expressions to an existing Excel workbook, extracting data
         into a new column. You must provide an XML configuration file that lists:
 1. Name of the Excel workbook to process
-2. Sheet(s) to be processed
+2. Sheet(s) and column(s) to be processed
 3. Regular Expression to use and the new column to be created.
 
  Here's an example configuration file:
@@ -60,9 +60,10 @@ To handle variations in how data are present, you can add `<cleaning>` statement
                     <extract>....
 
 These `<cleaning>` statements will be executed on the specified column before the `<extract>` statements,
-but the original column--not the modified column--will be shown in the Excel file that is created. 
+but the _original_ column--not the modified column--will be shown in the Excel file that is created. 
 ## Installation
-Copy the directory `excel_postprocess.dist` to the directory containing the Excel workbook. 
+To allow its use in secure environments in which `pip install` is unavailable, the app has been compiled into `.exe` form.
+Copy `dist/excel_postprocess.zip` to the directory with the target Excel spreadsheet and unzip into the executable file and a sample `.xml` configuration file.
 Customize the configuration file `excel_postprocessor.xml` to specify the workbook, worksheets and
 columns you want to process.
 
