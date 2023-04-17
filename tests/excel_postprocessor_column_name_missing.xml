@@ -1,0 +1,17 @@
+<workbook>
+    <name>test_data.xlsx</name>
+    <sheet>
+        <name>Patients</name>
+        <source_column>
+            <name></name>
+            <cleaning>
+                <pattern>VL EF MOD</pattern>
+                <replace>LV EF MOD</replace>
+            </cleaning>
+            <extract>
+                <pattern>MV e. \(lateral\):\s?(\d+\.?\d*)\s?m/s</pattern>
+                <new_column>MV e' lateral</new_column>
+            </extract>
+        </source_column>
+    </sheet>
+</workbook>

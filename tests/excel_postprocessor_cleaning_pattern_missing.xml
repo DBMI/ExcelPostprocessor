@@ -1,15 +1,10 @@
 <workbook>
-    <name>..\..\tests\test_data.xlsx</name>
+    <name>test_data.xlsx</name>
     <sheet>
         <name>Patients</name>
         <source_column>
             <name>REPORT</name>
             <cleaning>
-                <pattern>Procedure (\d{1,2}/\d{1,2}/\d{4}) performed:?</pattern>
-                <replace>Procedure performed: \1</replace>
-            </cleaning>
-            <cleaning>
-                <pattern>VL EF MOD</pattern>
                 <replace>LV EF MOD</replace>
             </cleaning>
             <extract>

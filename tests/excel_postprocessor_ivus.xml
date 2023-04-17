@@ -1,0 +1,63 @@
+<workbook>
+    <name>temp.xlsx</name>
+    <sheet>
+        <name>IVUS Notes</name>
+        <source_column>
+            <name>Report</name>
+			<cleaning>
+				<pattern>\(MAL</pattern>
+				<replace>\(MLA</replace>
+			</cleaning>
+			<cleaning>
+				<pattern>9MLA</pattern>
+				<replace>\(MLA</replace>
+			</cleaning>
+			<cleaning>
+				<pattern>9MAL</pattern>
+				<replace>\(MLA</replace>
+			</cleaning>
+			<cleaning>
+				<pattern>I\.T\.</pattern>
+				<replace>IT</replace>
+			</cleaning>
+			<cleaning>
+				<pattern>distla</pattern>
+				<replace>distal</replace>
+			</cleaning>
+			<cleaning>
+				<pattern>intima </pattern>
+				<replace>intimal</replace>
+			</cleaning>
+			<cleaning>
+				<pattern>intimall</pattern>
+				<replace>intimal</replace>
+			</cleaning>
+			<extract>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}(Atherosclerosis|atherosclerosis|Concentric|concentric|Eccentric|eccentric|Mild|mild|Scant|scant|Short arc|short arc)[^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}\d*\.?\d* *mm</pattern>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}(Atherosclerosis|atherosclerosis|Concentric|concentric|Eccentric|eccentric|Mild|mild|Scant|scant|Short arc|short arc)[^\d\.:]{0,50}\d*\.?\d* *mm [^\d\.:]{0,50}(?:intimal thickening|IT)</pattern>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}(Atherosclerosis|atherosclerosis|Concentric|concentric|Eccentric|eccentric|Mild|mild|Scant|scant|Short arc|short arc)[^\d\.:]{0,50}\d*\.?\d* *mm</pattern>
+				<pattern>(?:Prox|prox|Proximal|proximal) (Atherosclerosis|atherosclerosis|Concentric|concentric|Eccentric|eccentric|Mild|mild|Scant|scant|Short arc|short arc) (?:LAD|left anterior descending):? \d*\.?\d* *mm[^\d\.:]{0,50}(?:intimal thickening|IT)</pattern>
+				<new_column>Proximal LAD: I.T. qualifier</new_column>
+			</extract>
+			<extract>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}(ostial)</pattern>
+				<new_column>Proximal: ostial qualifier</new_column>
+			</extract>
+			<extract>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}(\d*\.?\d*) *mm</pattern>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}(\d*\.?\d*) *mm[^\d\.:]{0,50}(?:intimal thickening|IT)</pattern>
+				<new_column>Proximal LAD: I.T. (mm)</new_column>
+			</extract>
+			<extract>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}\d*\.?\d* *mm[^\d\.:]{0,50}\(?MLA (\d+\.?\d*)</pattern>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}\d*\.?\d* *mm [^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}\(?MLA (\d+\.?\d*)</pattern>
+				<new_column>Proximal LAD: MLA (mm^2)</new_column>
+			</extract>
+			<extract>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}\d*\.?\d* *mm[^\d\.:]{0,50}\(?MLA \d+\.?\d* *(?:mm2|sq mm|sq\. mm)?, +lumen[^\d\.:]{0,50}(\d+\.\d* *[X|x] *\d+\.\d*) *mm</pattern>
+				<pattern>(?:Prox|prox|Proximal|proximal) (?:LAD|left anterior descending):?[^\d\.:]{0,50}\d*\.?\d* *mm [^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}\(?MLA \d+\.?\d* *(?:mm2|sq mm|sq\. mm)?, +lumen[^\d\.:]{0,50}(\d+\.\d* *[X|x] *\d+\.\d*) *mm</pattern>
+				<new_column>Proximal LAD: lumen (mm)</new_column>
+			</extract>
+        </source_column>
+    </sheet>
+</workbook>

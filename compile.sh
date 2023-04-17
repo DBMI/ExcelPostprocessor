@@ -1,0 +1,1 @@
+pyinstaller excel_postprocess.py --onefile --icon=dist\excel_regex.ico
