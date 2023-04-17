@@ -13,7 +13,9 @@ class ExcelParser:
     Reads existing Excel spreadsheet, parses desired targets & adds columns.
     """
 
-    def __init__(self, excel_filename: str, sheet_name: str = None) -> None:
+    def __init__(
+        self, excel_filename: str, sheet_name: Union[str, None] = None
+    ) -> None:
         """Reads in one sheet of the Excel file.
 
         Parameters
@@ -92,7 +94,7 @@ class ExcelParser:
         if not isinstance(pattern, str) and not isinstance(pattern, list):
             raise TypeError("Argument 'pattern' is neither the expected str nor list.")
 
-        extracted_data = self.__extract_series(column_name=column_name, pattern=pattern)
+        extracted_data = self.__extract(column_name=column_name, pattern=pattern)
         return extracted_data.tolist()
 
     def __extract(self, column_name: str, pattern: Union[str, list]) -> pandas.Series:
@@ -204,7 +206,7 @@ class ExcelParser:
 
         self.__df[column_name] = self.__df_orig[column_name]
 
-    def write_to_excel(self, new_file_name: str = None) -> str:
+    def write_to_excel(self, new_file_name: Union[str, None] = None) -> str:
         """Write out the dataframe we've been building.
 
         Parameters

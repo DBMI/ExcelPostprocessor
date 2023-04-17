@@ -41,5 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['dist\\exel_regex.ico'],
+    icon=['dist\\excel_regex.ico'],
 )

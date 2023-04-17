@@ -13,11 +13,18 @@
 ---
 
 `Excel Postprocessor` applies Regular Expressions to an existing Excel workbook, extracting data
-        into a new column. You must provide an XML configuration file that lists:
+        into new columns. You must provide an XML configuration file that lists:
 1. Name of the Excel workbook to process
 2. Sheet(s) and column(s) to be processed
-3. Regular Expression to use and the new column to be created.
+3. Regular Expression to use and the new column(s) to be created.
 
+## Execution
+Run the app with:
+
+            excel_postprocess.exe --config <name of config file.xml>
+
+## Configuration
+### Basic
  Here's an example configuration file:
 
         <workbook>
@@ -37,15 +44,10 @@
                 </source_column>
             </sheet>
         </workbook>
-
-Run the app with:
-
-            excel_postprocess.exe --config <name of config file.xml>
-
-If the config file name is not specified, the app will look for the default file `excel_postprocessor.xml`.
+If the config file name is not specified, the app will look for the default file `excel_postprocess.xml`.
 The app creates a new Excel workbook for each worksheet to be processed.
-
-To handle variations in how data are present, you can add `<cleaning>` statements to define a regex `replace` statement:
+### Cleaning
+To handle errors in text, you can add `<cleaning>` statements to define a regex `replace` statement:
 
     <workbook>
             <name>test_data.xlsx</name>
@@ -54,17 +56,33 @@ To handle variations in how data are present, you can add `<cleaning>` statement
                 <source_column>
                     <name>Report</name>
                     <cleaning>
-                        <pattern>Proximal eccentric LAD:</pattern>
-                        <replace>Proximal LAD eccentric:</replace>
+                        <pattern>\(MAL</pattern>
+                        <replace>\(MLA</replace>
                     </cleaning>
                     <extract>....
 
 These `<cleaning>` statements will be executed on the specified column before the `<extract>` statements,
 but the _original_ column--not the modified column--will be shown in the Excel file that is created. 
+### Multiple Patterns
+To accommodate multiple styles in free text, you can define several regex patterns for the same source column. This allows several patterns to all result in the same new column. Here's an example:
+
+        <extract>
+            <pattern>[D|d]istal to mid stent:?[^\d\.:]{0,50}(Atherosclerosis|atherosclerosis|Concentric|concentric|Eccentric|eccentric|Mild|mild|Scant|scant|Short arc|short arc)[^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}\d*\.?\d* *mm</pattern>
+            <pattern>[D|d]istal to mid stent:?[^\d\.:]{0,50}(Atherosclerosis|atherosclerosis|Concentric|concentric|Eccentric|eccentric|Mild|mild|Scant|scant|Short arc|short arc)[^\d\.:]{0,50}[^\d\.:]{0,50}\d*\.?\d* *mm(?:intimal thickening|IT)</pattern>
+            <pattern>[D|d]istal to mid stent:?[^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}(Atherosclerosis|atherosclerosis|Concentric|concentric|Eccentric|eccentric|Mild|mild|Scant|scant|Short arc|short arc)[^\d\.:]{0,50}\d*\.?\d* *mm</pattern>
+            <pattern>[D|d]istal to mid stent:?[^\d\.:]{0,50}(Atherosclerosis|atherosclerosis|Concentric|concentric|Eccentric|eccentric|Mild|mild|Scant|scant|Short arc|short arc) (?:LAD|left anterior descending):?[^\d\.:]{0,50}\d*\.?\d* *mm[^\d\.:]{0,50}(?:intimal thickening|IT)</pattern>
+            <pattern>(Atherosclerosis|atherosclerosis|Concentric|concentric|Eccentric|eccentric|Mild|mild|Scant|scant|Short arc|short arc)[^\d\.:]{0,50}(?:intimal thickening|IT)[^\d\.:]{0,50}[D|d]istal to mid stent:?[^\d\.:]{0,50}(?:LAD|left anterior descending):?[^\d\.:]{0,50}\d*\.?\d* *mm</pattern>
+            <new_column>Distal to mid stent: qualifier</new_column>
+        </extract>
+This is easier than trying to write a single regex that can allow for keywords to appear in different orders. 
+And, instead of writing a separate `<extract>` block for each possible ordering&mdash;each creating its own new column&mdash;
+all these variations will be inserted into the same new column. When defining multiple `<pattern>` rules, 
+the first one that matches a particular spreadsheet row will be used.
 ## Installation
 To allow its use in secure environments in which `pip install` is unavailable, the app has been compiled into `.exe` form.
-Copy `dist/excel_postprocess.zip` to the directory with the target Excel spreadsheet and unzip into the executable file and a sample `.xml` configuration file.
-Customize the configuration file `excel_postprocessor.xml` to specify the workbook, worksheets and
+Copy `dist/excel_postprocess.zip` to the directory with the target Excel spreadsheet and unpack into the executable file 
+`excel_postprocess.exe` and a sample configuration file `excel_postprocess.xml`.
+Customize the configuration file `excel_postprocess.xml` to specify the workbook, worksheets and
 columns you want to process.
 
 ## Development
