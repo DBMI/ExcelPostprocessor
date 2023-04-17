@@ -12,7 +12,7 @@
 
 ---
 
-`Excel Postprocessor` applies Regular Expressions to an existing Excel workbook, extracting data
+`Excel Postprocessor`applies Regular Expressions to an existing Excel workbook, extracting data
         into new columns. You must provide an XML configuration file that lists:
 1. Name of the Excel workbook to process
 2. Sheet(s) and column(s) to be processed
@@ -22,6 +22,8 @@
 Run the app with:
 
             excel_postprocess.exe --config <name of config file.xml>
+If the config file name is not specified, the app will look for the default file `excel_postprocess.xml`.
+The app creates a new Excel workbook for each worksheet to be processed.
 
 ## Configuration
 ### Basic
@@ -44,10 +46,8 @@ Run the app with:
                 </source_column>
             </sheet>
         </workbook>
-If the config file name is not specified, the app will look for the default file `excel_postprocess.xml`.
-The app creates a new Excel workbook for each worksheet to be processed.
 ### Cleaning
-To handle errors in text, you can add `<cleaning>` statements to define a regex `replace` statement:
+To handle errors in text, you can add`<cleaning>`statements to define a regex`replace`statement:
 
     <workbook>
             <name>test_data.xlsx</name>
@@ -61,8 +61,9 @@ To handle errors in text, you can add `<cleaning>` statements to define a regex 
                     </cleaning>
                     <extract>....
 
-These `<cleaning>` statements will be executed on the specified column before the `<extract>` statements,
-but the _original_ column--not the modified column--will be shown in the Excel file that is created. 
+Using `<cleaning>`statements can help simplify the matching patterns, since the patterns won't have to accommodate misspelled words.
+These`<cleaning>`statements will be executed on the specified column before the`<extract>`statements,
+but the _original_ column&mdash;not the modified column&mdash;will be shown in the Excel file that is created. 
 ### Multiple Patterns
 To accommodate multiple styles in free text, you can define several regex patterns for the same source column. This allows several patterns to all result in the same new column. Here's an example:
 
