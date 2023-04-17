@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['cli.py'],
+    ['excel_postprocess.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -41,5 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['dist\\excel_regex.ico'],
+    icon=['dist\\exel_regex.ico'],
 )

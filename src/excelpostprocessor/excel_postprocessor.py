@@ -2,10 +2,10 @@
 Moodule: contains class ExcelParser.
 """
 import os
+from typing import Union
 
 import openpyxl
 import pandas
-from typing import Union
 
 
 class ExcelParser:
