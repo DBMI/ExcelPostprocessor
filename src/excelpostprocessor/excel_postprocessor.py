@@ -1,11 +1,13 @@
 """
-Moodule: contains class ExcelParser.
+Module: contains class ExcelParser.
 """
 import os
 from typing import Union
 
 import openpyxl
 import pandas
+
+from .regex_parser import RegexParser
 
 
 class ExcelParser:
@@ -38,13 +40,16 @@ class ExcelParser:
             wb.close()
 
         self.__sheet_name = sheet_name
-        self.__df: pandas.DataFrame = pandas.read_excel(
+        df: pandas.DataFrame = pandas.read_excel(
             self.__excel_filename, sheet_name=sheet_name
         )
-        self.__df_orig: pandas.DataFrame = self.__df.copy()
 
-        if not isinstance(self.__df, pandas.DataFrame):  # pragma: no cover
+        if not isinstance(df, pandas.DataFrame):  # pragma: no cover
             raise RuntimeError(f"Unable to read file '{self.__excel_filename}'.")
+
+        #   Farm out the Regular Expression work to the RegexParser class,
+        #   so it can be reused with other file types.
+        self.__regex_parser: RegexParser = RegexParser(df)
 
     def clean_column(self, column_name: str, pattern: str, replace: str) -> None:
         """Use a regex to fix strings.
@@ -55,14 +60,9 @@ class ExcelParser:
         pattern : str
         replace : str
         """
-
-        if column_name not in self.__df:
-            raise AttributeError(f"Unable to find column '{column_name}' in DataFrame.")
-
-        revised_series = self.__df[column_name].str.replace(
-            pattern, replace, regex=True
+        self.__regex_parser.clean_column(
+            column_name=column_name, pattern=pattern, replace=replace
         )
-        self.__df[column_name] = revised_series
 
     def data(self) -> pandas.DataFrame:
         """Allows read access to self.__df.
@@ -71,7 +71,7 @@ class ExcelParser:
         -------
         df : pandas.DataFrame
         """
-        return self.__df
+        return self.__regex_parser.data()
 
     def extract(self, column_name: str, pattern: Union[str, list]) -> list:
         """Use a regex to extract data from a given column into a list.
@@ -85,50 +85,7 @@ class ExcelParser:
         -------
         extracted_data : list of str
         """
-        if not isinstance(column_name, str):
-            raise TypeError("Argument 'column_name' is not the expected str.")
-
-        if column_name not in self.__df:
-            raise AttributeError(f"Unable to find column '{column_name}' in DataFrame.")
-
-        if not isinstance(pattern, str) and not isinstance(pattern, list):
-            raise TypeError("Argument 'pattern' is neither the expected str nor list.")
-
-        extracted_data = self.__extract(column_name=column_name, pattern=pattern)
-        return extracted_data.tolist()
-
-    def __extract(self, column_name: str, pattern: Union[str, list]) -> pandas.Series:
-        """Handles the extraction of data for either extract or extract_into_new_column methods.
-        Assumes the calling methods have screened inputs for proper type.
-
-        Parameters
-        ----------
-        column_name : str
-        pattern : str or list of str
-
-        Returns
-        -------
-        extracted_data : pandas.Series
-        """
-        if isinstance(pattern, list):
-            #   Try each pattern & use the values for the rows when it matches.
-            extracted_data = pandas.Series(dtype="float64")
-
-            for this_pattern in pattern:
-                this_extracted_data = self.__extract_series(
-                    column_name=column_name, pattern=this_pattern
-                )
-
-                if extracted_data.empty:
-                    extracted_data = this_extracted_data
-                else:
-                    extracted_data.update(this_extracted_data)
-        else:
-            extracted_data = self.__extract_series(
-                column_name=column_name, pattern=pattern
-            )
-
-        return extracted_data
+        return self.__regex_parser.extract(column_name=column_name, pattern=pattern)
 
     def extract_into_new_column(
         self, column_name: str, pattern: Union[str, list], new_column: str
@@ -141,44 +98,9 @@ class ExcelParser:
         pattern : str or list of str
         new_column : str
         """
-        if not isinstance(column_name, str):
-            raise TypeError("Argument 'column_name' is not the expected str.")
-
-        if column_name not in self.__df:
-            raise AttributeError(f"Unable to find column '{column_name}' in DataFrame.")
-
-        if not isinstance(pattern, str) and not isinstance(pattern, list):
-            raise TypeError("Argument 'pattern' is neither the expected str nor list.")
-
-        if not isinstance(new_column, str):
-            raise TypeError("Argument 'new_column' is not the expected str.")
-
-        extracted_data = self.__extract(column_name=column_name, pattern=pattern)
-        self.__df[new_column] = extracted_data
-
-        #   The source column is almost always a long string, and it's more convenient if
-        #   it stays the last column (so the long text doesn't overwrite the new extracted column).
-        #   So rearrange the dataframe columns to put the source column last.
-        cols = list(self.__df.columns.values)
-        rearranged_cols = [c for c in cols if c != column_name]
-        rearranged_cols.append(column_name)
-        self.__df = self.__df[rearranged_cols]
-
-    def __extract_series(self, column_name: str, pattern: str) -> pandas.Series:
-        """Extracts column to Series using regex.
-        Assumes the calling methods have screened inputs for proper type.
-
-        Parameters
-        ----------
-        column_name : str
-        pattern : str
-
-        Returns
-        -------
-        column : Series
-        """
-        column: pandas.Series = self.__df[column_name].str.extract(pattern).squeeze()
-        return column
+        self.__regex_parser.extract_into_new_column(
+            column_name=column_name, pattern=pattern, new_column=new_column
+        )
 
     def restore_original_column(self, column_name: str) -> None:
         """Restores the original (uncleaned) column in preparation for writing out results.
@@ -189,22 +111,7 @@ class ExcelParser:
         ----------
         column_name : str
         """
-        if not isinstance(column_name, str):
-            raise TypeError("Argument 'column_name' is not the expected str.")
-
-        if column_name not in self.__df:
-            raise AttributeError(
-                f"Unable to find column '{column_name}' in modified DataFrame."
-            )
-
-        # There's no way the 'orig' dataframe could not contain this column,
-        #  but you never know!
-        if column_name not in self.__df_orig:  # pragma no cover
-            raise AttributeError(
-                f"Unable to find column '{column_name}' in original DataFrame."
-            )
-
-        self.__df[column_name] = self.__df_orig[column_name]
+        self.__regex_parser.restore_original_column(column_name=column_name)
 
     def write_to_excel(self, new_file_name: Union[str, None] = None) -> str:
         """Write out the dataframe we've been building.
@@ -231,9 +138,10 @@ class ExcelParser:
         start_col = 1
         start_row = 1
         col_idx = start_col
+        df = self.__regex_parser.data()
 
         # insert values
-        for label, content in self.__df.items():
+        for label, content in df.items():
             sheet.cell(row=start_row, column=col_idx, value=label)
 
             for row_idx, value_ in enumerate(content):

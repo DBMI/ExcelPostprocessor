@@ -3,6 +3,7 @@ Module: contains class ParserRunner.
 """
 import os
 from typing import Union
+
 import xmltodict
 
 from excelpostprocessor.excel_postprocessor import ExcelParser
